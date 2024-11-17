@@ -1,0 +1,54 @@
+{
+    "name": "mk990/mkapi",
+    "description": "api helper for laravel",
+    "license": "LGPL-3.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "Mk990\\MkApi\\": "src/"
+        },
+        "files": [
+            "src/Helpers/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mk990\\MkApi\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mohammad Hemmati",
+            "email": "m.kemeshki@gmail.com"
+        }
+    ],
+    "homepage": "https://github.com/mk990/mkapi",
+    "version": "0.0.1",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "optimize-autoloader": true
+    },
+    "require": {
+        "php": ">=8.2",
+        "illuminate/support": ">=11.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mk990\\MkApi\\ServiceProvider"
+            ],
+            "aliases": {
+                "MkApi": "Mk990\\MkApi\\Facade"
+            }
+        }
+    }
+}

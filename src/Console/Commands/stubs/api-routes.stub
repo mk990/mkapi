@@ -1,0 +1,20 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::group([
+    'prefix' => 'auth'
+], function ($router) {
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('register', [AuthController::class, 'register']);
+    Route::get('refresh', [AuthController::class, 'refresh']);
+    Route::get('me', [AuthController::class, 'me']);
+    Route::post('change-password', [AuthController::class, 'changePassword']);
+    Route::get('verify-email', [AuthController::class, 'verifyEmail']);
+    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmailAddress'])->name('verification.verify');
+    Route::post('forgotPassword', [AuthController::class, 'forgotPassword']);
+    Route::get('forgotPassword/{token}', [AuthController::class, 'getForgotPassword'])->name('password.reset');
+    Route::post('forgotPassword/{token}', [AuthController::class, 'setForgotPassword'])->name('change-password');
+});

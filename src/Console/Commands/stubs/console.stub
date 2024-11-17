@@ -1,0 +1,47 @@
+<?php
+
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Schedule;
+
+// Artisan::command('envoy:run {task}', function () {
+//     $task = $this->argument('task');
+//     $envoyCommand = "vendor/bin/envoy run {$task}";
+//     $this->info("Running Envoy task: {$task}");
+//     passthru($envoyCommand);
+// });
+
+// Artisan::command('analyse', function () {
+//     $command = 'vendor/bin/phpstan analyse --ansi --memory-limit=2G';
+//     $this->info('Analyse with phpstan');
+//     passthru($command);
+// });
+
+Schedule::command('backup:run')
+    ->when(function () {
+        $directory = storage_path('app/' . config('backup.backup.name'));
+        if (!is_dir($directory)) {
+            File::makeDirectory($directory, 0755, true, true);
+        }
+        return true;
+    })
+    ->after(function () {
+        $directory = storage_path('app/' . config('backup.backup.name'));
+        $files = File::files($directory);
+        usort($files, function ($a, $b) {
+            return filemtime($b) - filemtime($a);
+        });
+        $lastFile = reset($files);
+        $lastFileName = basename($lastFile);
+        if (env('BACKUP_SERVER', false)) {
+            $response = Http::timeout(3600)->connectTimeout(3600)
+                    ->attach('file', file_get_contents($lastFile), $lastFileName)
+                    ->post(env('BACKUP_SERVER'));
+            if ($response->successful()) {
+                File::delete($lastFile);
+            }
+        }
+        return true;
+    })->at("02:42");
+
