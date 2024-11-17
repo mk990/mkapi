@@ -44,10 +44,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Mk990\\MkApi\\ServiceProvider"
+                "Mk990\\MkApi\\ServiceProvider\\MkApiServiceProvider"
             ],
             "aliases": {
-                "MkApi": "Mk990\\MkApi\\Facade"
+                "MkApi": "Mk990\\MkApi\\Facade\\MkApi"
             }
         }
     }
