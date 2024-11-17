@@ -22,7 +22,7 @@
         }
     ],
     "homepage": "https://github.com/mk990/mkapi",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {
