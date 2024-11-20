@@ -157,7 +157,7 @@ EOT;
 public function update(Request \$request, int \$id): JsonResponse
     {
         \$request->validate($validator);
-               try {
+            try {
             \$result = (new {$modelName}())->findOrFail(\$id);
             \$result->update(\$request->all());
             return \$this->success(\$result);
@@ -469,6 +469,8 @@ EOT;
                 $update = $this->codes[3];
                 $delete = $this->codes[4];
 
+                $this->haveMiddeleware($modelPath);
+
                 $fileContent = File::get($modelPath);
                 $fileContent = preg_replace('/public function index\(.*?\).{29}\/\/ Your code here.{5}\}/s', $index, $fileContent, 1);
                 File::put($modelPath, $fileContent);
@@ -483,6 +485,30 @@ EOT;
             }
         } else {
             $this->warn("Model file for `$modelPath` not found.");
+        }
+    }
+
+    public function haveMiddeleware($path)
+    {
+        $fileContent = File::get($path);
+        if (!preg_match('/HasMiddleware/s', $fileContent)) {
+            $fileContent = preg_replace("/extends Controller.*?\{/s", "extends Controller implements HasMiddleware
+{
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('auth')
+        ];
+    }
+", $fileContent, 1);
+            $fileContent = preg_replace("/use App\\\Models/s", "use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Log;
+use App\Models", $fileContent, 1);
+            File::put($path, $fileContent);
         }
     }
 

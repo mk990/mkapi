@@ -180,6 +180,6 @@ class BaseCommand extends Command
     protected function hasSwaggerAnnotations(string $filePath): bool
     {
         $fileContent = File::get($filePath);
-        return strpos($fileContent, '@OA\Schema') !== false;
+        return strpos($fileContent, '@OA') !== false;
     }
 }

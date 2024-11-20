@@ -5,4 +5,4 @@
 - [ ] get code base controller in config.php
 - [ ] pagination
 - [ ] fix config auth in auth.php
-- [ ] import models and midlewares fo controlers
+- [x] import models and middlewares for controlers
