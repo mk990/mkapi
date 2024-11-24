@@ -501,13 +501,12 @@ EOT;
         ];
     }
 ", $fileContent, 1);
-            $fileContent = preg_replace("/use App\\\Models/s", "use Exception;
+            $fileContent = preg_replace("/use Illuminate\\Http\\Request;/s", "use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Log;
-use App\Models", $fileContent, 1);
+use Illuminate\Support\Facades\Log;", $fileContent, 1);
             File::put($path, $fileContent);
         }
     }
