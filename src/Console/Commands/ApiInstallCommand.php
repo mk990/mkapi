@@ -56,9 +56,6 @@ class ApiInstallCommand extends Command
         if (!file_exists($authControllerPath = $this->laravel->basePath('app/Http/Controllers/AuthController.php'))) {
             File::put($authControllerPath, File::get(__DIR__ . '/stubs/auth-controller.stub'));
             $this->info('putted AuthController file');
-        } else {
-            copy(__DIR__ . '/stubs/auth-controller.stub', $authControllerPath);
-            $this->info('updated AuthController file');
         }
 
         if (file_exists($UserModel = $this->laravel->basePath('app/Models/User.php'))) {
@@ -145,7 +142,7 @@ class ApiInstallCommand extends Command
             $content,
             "'guards' => [
         'web' => [
-            'driver'   => 'session',
+            'driver' => 'session',
             'provider' => 'users',
         ],
     ],"
@@ -153,7 +150,7 @@ class ApiInstallCommand extends Command
             (new Filesystem())->replaceInFile(
                 "'guards' => [
         'web' => [
-            'driver'   => 'session',
+            'driver' => 'session',
             'provider' => 'users',
         ],
     ],",

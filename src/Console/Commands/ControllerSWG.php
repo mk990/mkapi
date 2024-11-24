@@ -308,6 +308,8 @@ EOT;
      *         @OA\JsonContent(ref="#/components/schemas/ErrorModel"),
      *     ),security={{"api_key": {}}}
      * )
+     * 
+     * @return JsonResponse
      * Display the specified resource.
      */
     public function index(): JsonResponse
