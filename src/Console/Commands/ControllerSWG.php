@@ -218,36 +218,99 @@ EOT;
         $index = <<<EOT
     /**
      * @OA\Get(
-     *   path="/$routeName",
-     *   tags={"$modelName"},
-     *   summary="get all $className",
-     *   description="list of all $className",
-     *   operationId="getAll$className",
-     *   deprecated=false,
-     *   @OA\Parameter(
-     *     name="page",
-     *     in="query",
-     *     required=false,
-     *     example=1,
-     *     @OA\Schema(
-     *     type="string"
-     *      )
-     *   ),
-     *   @OA\Response(
-     *     response=200,
-     *     description="Success",
-     *     @OA\JsonContent(ref="#/components/schemas/{$modelName}Model"),
-     *   ),
-     *   @OA\Response(
-     *     response=400,
-     *     description="an unexpected error",
-     *     @OA\JsonContent(ref="#/components/schemas/ErrorModel"),
-     *   ),security={{"api_key": {}}}
+     *     path="/$routeName",
+     *     tags={"$modelName"},
+     *     summary="list all $className",
+     *     description="list all $className",
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="string",
+     *             default="1"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success Message",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="current_page",
+     *                 type="integer",
+     *                 format="int32",
+     *                 description="Current page number"
+     *             ),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/{$modelName}Model"),
+     *                 description="List of item"
+     *             ),
+     *             @OA\Property(
+     *                 property="first_page_url",
+     *                 type="string",
+     *                 format="uri",
+     *                 description="First page URL"
+     *             ),
+     *             @OA\Property(
+     *                 property="from",
+     *                 type="integer",
+     *                 format="int32",
+     *                 description="First item number in the current page"
+     *             ),
+     *             @OA\Property(
+     *                 property="last_page",
+     *                 type="integer",
+     *                 format="int32",
+     *                 description="Last page number"
+     *             ),
+     *             @OA\Property(
+     *                 property="links",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     oneOf={
+     *                         @OA\Schema(ref="#/components/schemas/Previous"),
+     *                         @OA\Schema(ref="#/components/schemas/Links"),
+     *                         @OA\Schema(ref="#/components/schemas/Next")
+     *                     }
+     *                 ),
+     *                 description="Links"
+     *             ),
+     *             @OA\Property(
+     *                 property="last_page_url",
+     *                 type="string",
+     *                 format="uri",
+     *                 description="Last page URL"
+     *             ),
+     *             @OA\Property(
+     *                 property="next_page_url",
+     *                 type="string",
+     *                 format="uri",
+     *                 description="Next page URL"
+     *             ),
+     *             @OA\Property(
+     *                 property="path",
+     *                 type="string",
+     *                 description="Path"
+     *             ),
+     *             @OA\Property(
+     *                 property="per_page",
+     *                 type="integer",
+     *                 format="int32",
+     *                 description="Items per page"
+     *             )
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="an ""unexpected"" error",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorModel"),
+     *     ),security={{"api_key": {}}}
      * )
-     *
-     * Display a listing of the resource.
-     *
+     * 
      * @return JsonResponse
+     * Display the specified resource.
      */
     public function index(): JsonResponse
     {

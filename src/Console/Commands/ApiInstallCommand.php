@@ -5,6 +5,7 @@ namespace Mk990\MkApi\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Console\InteractsWithComposerPackages;
+use Illuminate\Support\Facades\File;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(name: 'install:mkApi')]
@@ -40,6 +41,7 @@ class ApiInstallCommand extends Command
 
         $this->installJWT();
         $this->changeAuthConfigFile();
+        $this->handleDotEnvFile();
 
         if (file_exists($apiRoutesPath = $this->laravel->basePath('routes/api.php')) &&
             !$this->option('force')) {
@@ -51,8 +53,20 @@ class ApiInstallCommand extends Command
             $this->uncommentApiRoutesFile();
         }
 
+        if (!file_exists($authControllerPath = $this->laravel->basePath('app/Http/Controllers/AuthController.php'))) {
+            File::put($authControllerPath, File::get(__DIR__ . '/stubs/auth-controller.stub'));
+            $this->info('putted AuthController file');
+        }
+
+        if (file_exists($UserModel = $this->laravel->basePath('app/Models/User.php'))) {
+            copy(__DIR__ . '/stubs/user-model.stub', $UserModel);
+            $this->info('Updated User Model file');
+        } else {
+            $this->error('User Model file not found');
+        }
+
         if (!file_exists($fixerPath = $this->laravel->basePath('.php-cs-fixer.php'))) {
-                copy(__DIR__ . '/stubs/phpfixer.stub', $fixerPath);
+            copy(__DIR__ . '/stubs/phpfixer.stub', $fixerPath);
         }
 
         if ($this->option('backup')) {
@@ -72,6 +86,9 @@ class ApiInstallCommand extends Command
                     copy(__DIR__ . '/stubs/console.stub', $consolePath);
                 }
             }
+        }
+        if ($this->option('iran')) {
+            $this->installPersianPackages();
         }
     }
 
@@ -117,7 +134,11 @@ class ApiInstallCommand extends Command
                 "'AUTH_GUARD', 'api'",
                 $appBootstrapPath,
             );
-        } elseif (str_contains(
+        } else {
+            $this->components->warn('Unable to automatically add API route definition to bootstrap file. API route file should be registered manually.');
+        }
+
+        if (str_contains(
             $content,
             "'guards' => [
         'web' => [
@@ -145,9 +166,9 @@ class ApiInstallCommand extends Command
     ],",
                 $appBootstrapPath,
             );
+            $this->components->info('updated auth config file');
         } else {
             $this->components->warn('Unable to automatically add API route definition to bootstrap file. API route file should be registered manually.');
-
             return;
         }
     }
@@ -164,6 +185,7 @@ class ApiInstallCommand extends Command
         $this->requireComposerPackages($this->option('composer'), [
             'php-open-source-saver/jwt-auth:^2.7',
         ]);
+        Artisan::call('jwt:secret');
     }
 
     protected function installBackup()
@@ -171,6 +193,39 @@ class ApiInstallCommand extends Command
         $this->requireComposerPackages($this->option('composer'), [
             'ext-zip:*',
             'spatie/laravel-backup:^9.1',
+        ]);
+    }
+
+    protected function handleDotEnvFile()
+    {
+        $env = $this->laravel->basePath('.env');
+
+        $dataEnv = [
+            'L5_SWAGGER_CONST_HOST=http://127.0.0.1:8000/api',
+            'L5_SWAGGER_GENERATE_ALWAYS=true',
+            'L5_SWAGGER_USE_ABSOLUTE_PATH=false',
+            'JWT_TTL=10080',
+        ];
+        $content = file_exists($env) ? file_get_contents($env) : '';
+        $newContent = [];
+
+        foreach ($dataEnv as $line) {
+            $key = explode('=', $line, 2)[0];
+            if (!preg_match("/^$key=/m", $content)) {
+                $newContent[] = $line;
+            }
+        }
+        if (!empty($newContent)) {
+            $content .= "\n" . implode("\n", $newContent);
+            file_put_contents($env, trim($content));
+            $this->components->info('env file updated');
+        }
+    }
+
+    protected function installPersianPackages()
+    {
+        $this->requireComposerPackages($this->option('composer'), [
+            'sadegh19b/laravel-persian-validation',
         ]);
     }
 }
