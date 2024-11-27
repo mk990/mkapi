@@ -21,8 +21,8 @@ class ModelSWG extends BaseCommand
      *
      * @var string
      */
-    // FIXME: add force and name use one model
-    protected $signature = 'mkapi:modelSWG {name}';
+    protected $signature = 'mkapi:modelSWG {name}
+                    {--force : Overwrite any existing file}';
 
     /**
      * The console command description.
@@ -81,6 +81,9 @@ EOT;
         // Check if the model file exists
         if (file_exists($modelPath)) {
             $fileContent = File::get($modelPath);
+            if($this->hasSwaggerAnnotations($modelPath) && !$this->option('force')) {
+                return;
+            }
 
             // Remove any existing Swagger annotations (anything from /** to */ with @OA\Schema)
             $fileContent = preg_replace('/\/\*\*.*?@OA\\\Schema.*?\*\/\s*/s', '', $fileContent);
@@ -100,9 +103,19 @@ EOT;
      */
     public function handle()
     {
+        $name = $this->argument('name');
+        $name = strtolower($name);
+        if($name != "all") {
+            $name = Str::plural($name);
+        }
+        echo "Creating $name models...\n";
+
         try {
             $allTables = $this->parseCreateTableStatements($this->getSqlData()['pretend_sql']);
             foreach ($allTables as $tableName => $columns) {
+                if($name != "all" && $name != $tableName) {
+                    continue;
+                }
                 $swaggerModel = $this->generateSwaggerModel($tableName, $columns);
 
                 // Look for the corresponding model file

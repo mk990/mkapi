@@ -308,7 +308,7 @@ EOT;
      *         @OA\JsonContent(ref="#/components/schemas/ErrorModel"),
      *     ),security={{"api_key": {}}}
      * )
-     * 
+     *
      * @return JsonResponse
      * Display the specified resource.
      */
@@ -579,11 +579,23 @@ use Illuminate\Support\Facades\Log;", $fileContent, 1);
      */
     public function handle()
     {
+        $name = $this->argument('name');
+        $name = strtolower($name);
+        if($name != "all") {
+            $name = str_replace("Controller", "", $name);
+            $name = Str::plural($name);
+        }
+
+        echo "Creating $name controllers...\n";
         try {
             $this->metadata = $this->getSqlData();
             $allTables = $this->parseCreateTableStatements($this->metadata['pretend_sql']);
 
             foreach ($allTables as $tableName => $columns) {
+                if($name != "all" && $name != $tableName) {
+                    continue;
+                }
+
                 $this->codes = $this->generateControllerCode($tableName);
                 $swaggers = $this->generateSwaggerController($tableName, $columns);
 
