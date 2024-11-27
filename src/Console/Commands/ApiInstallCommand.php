@@ -41,6 +41,7 @@ class ApiInstallCommand extends Command
         $this->installSwagger();
 
         $this->installJWT();
+        $this->installLaraStan();
         $this->changeAuthConfigFile();
         $this->handleDotEnvFile();
 
@@ -179,6 +180,13 @@ class ApiInstallCommand extends Command
         $this->requireComposerPackages($this->option('composer'), [
             'darkaonline/l5-swagger:^8.6',
         ]);
+    }
+
+    protected function installLaraStan()
+    {
+        $this->requireComposerPackages($this->option('composer'), [
+            'larastan/larastan:^3.0',
+        ], true);
     }
 
     protected function installJWT()
