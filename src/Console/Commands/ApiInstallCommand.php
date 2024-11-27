@@ -4,7 +4,7 @@ namespace Mk990\MkApi\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Foundation\Console\InteractsWithComposerPackages;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -21,7 +21,8 @@ class ApiInstallCommand extends Command
     protected $signature = 'install:mkApi
                     {--composer=global : Absolute path to the Composer binary which should be used to install packages}
                     {--force : Overwrite any existing file}
-                    {--backup : Install Laravel Backup}';
+                    {--backup : Install Laravel Backup}
+                    {--iran : Install persian Laravel packages}';
 
     /**
      * The console command description.
@@ -40,6 +41,7 @@ class ApiInstallCommand extends Command
         $this->installSwagger();
 
         $this->installJWT();
+        $this->installLaraStan();
         $this->changeAuthConfigFile();
         $this->handleDotEnvFile();
 
@@ -178,6 +180,13 @@ class ApiInstallCommand extends Command
         $this->requireComposerPackages($this->option('composer'), [
             'darkaonline/l5-swagger:^8.6',
         ]);
+    }
+
+    protected function installLaraStan()
+    {
+        $this->requireComposerPackages($this->option('composer'), [
+            'larastan/larastan:^3.0',
+        ], true);
     }
 
     protected function installJWT()
