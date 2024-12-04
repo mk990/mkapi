@@ -42,10 +42,13 @@ class ModelSWG extends BaseCommand
     {
         $className = ucfirst(Str::camel($tableName));
         $modelName = Str::singular($className);
-        $routeName = Str::camel($modelName);
         $properties = [];
 
         foreach ($columns as $columnName => $columnType) {
+            $blackList = ['deleted_at'];
+            if (in_array($columnName, $blackList)) {
+                continue;
+            }
             // Determine Swagger type
             $type = $this->getSwaggerType($columnType);
 
@@ -80,11 +83,11 @@ EOT;
     {
         // Check if the model file exists
         if (file_exists($modelPath)) {
-            $fileContent = File::get($modelPath);
-            if($this->hasSwaggerAnnotations($modelPath) && !$this->option('force')) {
+            if ($this->hasSwaggerAnnotations($modelPath) && !$this->option('force')) {
                 return;
             }
 
+            $fileContent = File::get($modelPath);
             // Remove any existing Swagger annotations (anything from /** to */ with @OA\Schema)
             $fileContent = preg_replace('/\/\*\*.*?@OA\\\Schema.*?\*\/\s*/s', '', $fileContent);
             // Add the new Swagger annotations above the class declaration
@@ -105,7 +108,7 @@ EOT;
     {
         $name = $this->argument('name');
         $name = strtolower($name);
-        if($name != "all") {
+        if ($name != 'all') {
             $name = Str::plural($name);
         }
         echo "Creating $name models...\n";
@@ -113,7 +116,7 @@ EOT;
         try {
             $allTables = $this->parseCreateTableStatements($this->getSqlData()['pretend_sql']);
             foreach ($allTables as $tableName => $columns) {
-                if($name != "all" && $name != $tableName) {
+                if ($name != 'all' && $name != $tableName) {
                     continue;
                 }
                 $swaggerModel = $this->generateSwaggerModel($tableName, $columns);

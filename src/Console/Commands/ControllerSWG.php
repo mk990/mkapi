@@ -5,7 +5,6 @@ namespace Mk990\MkApi\Console\Commands;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
-use PHPUnit\Util\Blacklist;
 
 class ControllerSWG extends BaseCommand
 {
@@ -192,7 +191,7 @@ EOT;
         $properties = [];
 
         foreach ($columns as $columnName => $columnType) {
-            $blackList = ['id', 'created_at', 'updated_at'];
+            $blackList = ['id', 'created_at', 'updated_at', 'deleted_at'];
             if (in_array($columnName, $blackList)) {
                 continue;
             }
@@ -564,7 +563,7 @@ EOT;
         ];
     }
 ", $fileContent, 1);
-            $fileContent = preg_replace("/use Illuminate\\Http\\Request;/s", "use Exception;
+            $fileContent = preg_replace('/use Illuminate\\Http\\Request;/s', "use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -581,8 +580,8 @@ use Illuminate\Support\Facades\Log;", $fileContent, 1);
     {
         $name = $this->argument('name');
         $name = strtolower($name);
-        if($name != "all") {
-            $name = str_replace("Controller", "", $name);
+        if ($name != 'all') {
+            $name = str_replace('Controller', '', $name);
             $name = Str::plural($name);
         }
 
@@ -592,7 +591,7 @@ use Illuminate\Support\Facades\Log;", $fileContent, 1);
             $allTables = $this->parseCreateTableStatements($this->metadata['pretend_sql']);
 
             foreach ($allTables as $tableName => $columns) {
-                if($name != "all" && $name != $tableName) {
+                if ($name != 'all' && $name != $tableName) {
                     continue;
                 }
 
