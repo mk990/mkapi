@@ -4,7 +4,6 @@ namespace Mk990\MkApi\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Foundation\Console\InteractsWithComposerPackages;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,7 +21,8 @@ class ApiInstallCommand extends Command
     protected $signature = 'install:mkApi
                     {--composer=global : Absolute path to the Composer binary which should be used to install packages}
                     {--force : Overwrite any existing file}
-                    {--backup : Install Laravel Backup}';
+                    {--backup : Install Laravel Backup}
+                    {--iran : Install persian Laravel packages}';
 
     /**
      * The console command description.
@@ -41,6 +41,7 @@ class ApiInstallCommand extends Command
         $this->installSwagger();
 
         $this->installJWT();
+        $this->installLaraStan();
         $this->changeAuthConfigFile();
         $this->handleDotEnvFile();
 
@@ -181,6 +182,14 @@ class ApiInstallCommand extends Command
         ]);
     }
 
+
+    protected function installLaraStan()
+    {
+        $this->requireComposerPackages($this->option('composer'), [
+            'larastan/larastan:^3.0',
+        ], true);
+    }
+
     protected function installJWT()
     {
         $this->requireComposerPackages($this->option('composer'), [
@@ -202,7 +211,7 @@ class ApiInstallCommand extends Command
         $env = $this->laravel->basePath('.env');
 
         $dataEnv = [
-            'L5_SWAGGER_CONST_HOST=http://127.0.0.1:8000/api',
+            'L5_SWAGGER_CONST_HOST=${APP_URL}/api',
             'L5_SWAGGER_GENERATE_ALWAYS=true',
             'L5_SWAGGER_USE_ABSOLUTE_PATH=false',
             'JWT_TTL=10080',
