@@ -531,7 +531,7 @@ EOT;
                 $update = $this->codes[3];
                 $delete = $this->codes[4];
 
-                $this->haveMiddeleware($modelPath);
+                $this->haveMiddleware($modelPath);
 
                 $fileContent = File::get($modelPath);
                 $fileContent = preg_replace('/public function index\(.*?\).{29}\/\/ Your code here.{5}\}/s', $index, $fileContent, 1);
@@ -550,25 +550,32 @@ EOT;
         }
     }
 
-    public function haveMiddeleware($path)
+    public function haveMiddleware($path)
     {
+        $filename = pathinfo($path, PATHINFO_FILENAME);
+        $modelName = preg_replace('/Controller$/', '', $filename);
+
         $fileContent = File::get($path);
         if (!preg_match('/HasMiddleware/s', $fileContent)) {
             $fileContent = preg_replace("/extends Controller.*?\{/s", "extends Controller implements HasMiddleware
-{
-    public static function middleware(): array
     {
-        return [
-            new Middleware('auth')
-        ];
-    }
-", $fileContent, 1);
-            $fileContent = preg_replace('/use Illuminate\\Http\\Request;/s', "use Exception;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Log;", $fileContent, 1);
+        public static function middleware(): array
+        {
+            return [
+                new Middleware('auth')
+            ];
+        }
+    ", $fileContent, 1);
+            $use = [
+                'use Exception;',
+                'use Illuminate\Http\JsonResponse;',
+                'use Illuminate\Http\Request;',
+                'use Illuminate\Routing\Controllers\HasMiddleware;',
+                'use Illuminate\Routing\Controllers\Middleware;',
+                'use Illuminate\Support\Facades\Log;',
+                'use App\Models\\' . $modelName . ';',
+            ];
+            $fileContent = preg_replace('/use Illuminate\\\Http\\\Request;/s', implode("\n", $use), $fileContent, 1);
             File::put($path, $fileContent);
         }
     }

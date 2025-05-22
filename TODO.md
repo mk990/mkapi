@@ -13,13 +13,13 @@
 - [x] add config swagger to env.example
 - [x] add pulse
 - [x] Add cloudflare turnstile
+- [x] get code base controller in config.php
 - [] exclude deleted_at
 - [] write route name with instant -
 - [] add envoy
 - [] add laravel socialite (login with google..)
 - [] add switch in model/controller for chose model/controller -c or -m
 - [] add docker in project
-- [] get code base controller in config.php
 - [] add -c to model command
 - [] fix --force
 - [] fix --code --force (check coment)
