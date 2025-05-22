@@ -1,12 +1,25 @@
 # TODO
 
-- [ ] write readme
-- [ ] controller&model name ( run swagger in {name} )
-- [ ] get code base controller in config.php
+- [x] write readme
+- [x] controller&model name ( run swagger in {name} )
 - [x] pagination
 - [x] fix config auth in auth.php
-- [x] import models and middlewares for controlers
+- [x] import models and middlewares for controllers
 - [x] JWTSUBJECT (for user model)
-- [x] JWT:SECRET 
-- [x] when install packages if you use this command {--iran} ( iran packages for iran project ) 
-installed persian package
+- [x] JWT:SECRET
+- [x] installed persian package with {--iran}
+- [x] add example for test
+- [x] add verta for --iran
+- [x] add config swagger to env.example
+- [x] add pulse
+- [x] Add cloudflare turnstile
+- [] exclude deleted_at
+- [] write route name with instant -
+- [] add envoy
+- [] add laravel socialite (login with google..)
+- [] add switch in model/controller for chose model/controller -c or -m
+- [] add docker in project
+- [] get code base controller in config.php
+- [] add -c to model command
+- [] fix --force
+- [] fix --code --force (check coment)

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ config('l5-swagger.documentations.' . $documentation . '.api.title') }}</title>
+    <link nonce="{{ $cspNonce }}" rel="stylesheet" type="text/css"
+        href="{{ l5_swagger_asset($documentation, 'swagger-ui.css') }}">
+    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-32x32.png') }}"
+        sizes="32x32" />
+    <link rel="icon" type="image/png" href="{{ l5_swagger_asset($documentation, 'favicon-16x16.png') }}"
+        sizes="16x16" />
+    <style nonce="{{ $cspNonce }}">
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            margin: 0;
+            background: #fafafa;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="swagger-ui"></div>
+
+
+    <script nonce="{{ $cspNonce }}" src="{{ l5_swagger_asset($documentation, 'swagger-ui-bundle.js') }}"></script>
+    <script nonce="{{ $cspNonce }}" src="{{ l5_swagger_asset($documentation, 'swagger-ui-standalone-preset.js') }}">
+    </script>
+    <script nonce="{{ $cspNonce }}">
+        window.onload = function() {
+            // Build a system
+            const ui = SwaggerUIBundle({
+                dom_id: '#swagger-ui',
+                url: "{!! $urlToDocs !!}",
+                operationsSorter: {!! isset($operationsSorter) ? '"' . $operationsSorter . '"' : 'null' !!},
+                configUrl: {!! isset($configUrl) ? '"' . $configUrl . '"' : 'null' !!},
+                validatorUrl: {!! isset($validatorUrl) ? '"' . $validatorUrl . '"' : 'null' !!},
+                oauth2RedirectUrl: "{{ route('l5-swagger.' . $documentation . '.oauth2_callback', [], $useAbsolutePath) }}",
+
+                requestInterceptor: function(request) {
+                    // request.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}';
+                    request.headers['accept'] = 'application/json';
+                    return request;
+                },
+
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+
+                layout: "StandaloneLayout",
+                docExpansion: "{!! config('l5-swagger.defaults.ui.display.doc_expansion', 'none') !!}",
+                deepLinking: true,
+                filter: {!! config('l5-swagger.defaults.ui.display.filter') ? 'true' : 'false' !!},
+                persistAuthorization: "{!! config('l5-swagger.defaults.ui.authorization.persist_authorization') ? 'true' : 'false' !!}",
+
+            })
+
+            window.ui = ui
+
+            @if (in_array('oauth2', array_column(config('l5-swagger.defaults.securityDefinitions.securitySchemes'), 'type')))
+                ui.initOAuth({
+                    usePkceWithAuthorizationCodeGrant: "{!! (bool) config('l5-swagger.defaults.ui.authorization.oauth2.use_pkce_with_authorization_code_grant') !!}"
+                })
+            @endif
+
+            // auto add Token
+            function addToken() {
+                const API_KEY = 'token';
+                setTimeout(function() {
+                    // store the api key in the local storage
+                    var originalAuthorize = ui.authActions.authorize;
+                    // eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0L2FwaS9hdXRoL2xvZ2luIiwiaWF0IjoxNzQ3MjM3MDU5LCJleHAiOjE3NDc4NDE4NTksIm5iZiI6MTc0NzIzNzA1OSwianRpIjoiYTVJV3JGMGRQSWQzUTNXUiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.b0dbIBdabjBb4qMIQatkThxXTaNd8iy6uyI5c7Zs4xs
+                    ui.authActions.authorize = function(payload) {
+                        // set cookie lax
+                        document.cookie = 'token=' + payload.api_key.value +
+                        ';SameSite=Lax;secure;path=/pulse';
+                        window.localStorage.setItem(API_KEY, payload.api_key.value);
+                        return originalAuthorize(payload.api_key.value);
+                    };
+
+                    // if logout is clicked delete the api key in the local storage
+                    var originalLogout = ui.authActions.logout;
+
+                    ui.authActions.logout = function(payload) {
+                        window.localStorage.removeItem(API_KEY);
+                        return originalLogout(payload);
+                    };
+
+                    // If token already exists, load it from local storage
+                    const apiKey = window.localStorage.getItem(API_KEY);
+                    if (apiKey) {
+                        window.ui.preauthorizeApiKey('token', apiKey);
+                    }
+                }, 2000);
+            };
+            addToken();
+
+            window.onTurnstileSuccess = function(token) {
+                console.log("TOKEN: \n===================================");
+                console.info(token);
+                console.log("===================================");
+
+                // Optionally, enable the submit button or perform other actions
+                document.querySelector('form button[type="submit"]').disabled = false;
+            };
+        }
+    </script>
+    @turnstileScripts()
+    <x-turnstile id="turnstile" data-callback="onTurnstileSuccess" />
+
+</body>
+
+</html>

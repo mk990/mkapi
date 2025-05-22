@@ -1,0 +1,11 @@
+<?php
+
+use Hekmatinasser\Verta\Verta;
+
+trait VertaTrait
+{
+    protected function serializeDate($date)
+    {
+        return str_replace(' 00:00:00', '', Verta::instance($date)->formatJalaliDatetime());
+    }
+}
