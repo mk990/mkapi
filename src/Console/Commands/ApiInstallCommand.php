@@ -4,7 +4,6 @@ namespace Mk990\MkApi\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Illuminate\Support\Str;
@@ -50,6 +49,16 @@ class ApiInstallCommand extends Command
         $this->installJWT();
         $this->installLaraStan();
 
+        if (file_exists($baseController = $this->laravel->basePath('app/Http/Controllers/Controller.php'))) {
+            $content = file_get_contents($baseController);
+            if (!str_contains($content, 'OA\Info')) {
+                copy(__DIR__ . '/stubs/base-controller.stub', $baseController);
+                $this->components->info('Updated Base Controller file');
+            }
+        } else {
+            $this->components->error('Base Controller file not found');
+        }
+
         if (file_exists($swaggerBlade = $this->laravel->basePath('resources/views/vendor/l5-swagger/index.blade.php'))) {
             $this->components->info('putted swagger blade file');
             File::put($swaggerBlade, File::get(__DIR__ . '/stubs/swagger-blade.stub'));
@@ -77,9 +86,12 @@ class ApiInstallCommand extends Command
             File::put($testControllerPath, File::get(__DIR__ . '/stubs/example-controller.stub'));
         }
 
-        if (file_exists($UserModel = $this->laravel->basePath('app/Models/User.php'))) {
-            copy(__DIR__ . '/stubs/user-model.stub', $UserModel);
-            $this->components->info('Updated User Model file');
+        if (file_exists($userModel = $this->laravel->basePath('app/Models/User.php'))) {
+            $content = file_get_contents($userModel);
+            if (!str_contains($content, 'JWT')) {
+                copy(__DIR__ . '/stubs/user-model.stub', $userModel);
+                $this->components->info('Updated User Model file');
+            }
         } else {
             $this->components->error('User Model file not found');
         }
@@ -334,17 +346,11 @@ CONFIG;
 
     protected function installLaraStan()
     {
-        // $this->requireComposerPackages($this->option('composer'), [
-        //     'larastan/larastan:^3.0',
-        // ], true);
         $this->validationComposer('larastan/larastan:^3.0', true);
     }
 
     protected function installJWT()
     {
-        $this->requireComposerPackages($this->option('composer'), [
-            'php-open-source-saver/jwt-auth:^2.7',
-        ]);
         $this->validationComposer('php-open-source-saver/jwt-auth:^2.7');
     }
 
@@ -364,7 +370,6 @@ CONFIG;
         $dataEnv = [
             'L5_SWAGGER_CONST_HOST=${APP_URL}/api',
             'L5_SWAGGER_GENERATE_ALWAYS=true',
-            '# L5_SWAGGER_USE_ABSOLUTE_PATH=false',
             'JWT_TTL=10080',
             'TURNSTILE_SITE_KEY=0000000000000',
             'TURNSTILE_SECRET_KEY=0000000000000',

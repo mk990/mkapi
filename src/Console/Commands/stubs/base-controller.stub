@@ -1,48 +1,5 @@
 <?php
 
-namespace Mk990\MkApi\Console\Commands;
-
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
-
-class BaseControllerSWG extends BaseCommand
-{
-    /**
-     * Add or overwrite Swagger annotations in the model file.
-     *
-     * @param string $modelPath
-     * @param string $swaggerModel
-     * @return void
-     */
-
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-
-    protected $signature = 'mkapi:baseControllerSWG';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Command description';
-
-    /**
-     * Generate Swagger annotations for a given table and its columns.
-     *
-     * @param string $tableName
-     * @param array $columns
-     * @return string
-     */
-    private function generateTemplate(): string
-    {
-        return <<<EOT
-<?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
@@ -196,19 +153,3 @@ abstract class Controller
     private function schema()
     {
     }
-}
-EOT;
-    }
-
-    /**
-     * Execute the console command.
-     */
-    public function handle()
-    {
-        $modelPath = app_path('Http/Controllers/Controller.php');
-
-        // Add or update Swagger annotations in the model
-        File::put($modelPath, $this->generateTemplate());
-        $this->warn("put $modelPath");
-    }
-}

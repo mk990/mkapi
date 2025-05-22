@@ -5,7 +5,6 @@ namespace Mk990\MkApi\ServiceProvider;
 use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\ServiceProvider;
 use Mk990\MkApi\Console\Commands\ApiInstallCommand;
-use Mk990\MkApi\Console\Commands\BaseControllerSWG;
 use Mk990\MkApi\Console\Commands\ControllerSWG;
 use Mk990\MkApi\Console\Commands\ModelSWG;
 use Mk990\MkApi\MkApi;
@@ -28,7 +27,6 @@ class MkApiServiceProvider extends ServiceProvider
             $this->commands([
                 ModelSWG::class,
                 ControllerSWG::class,
-                BaseControllerSWG::class,
                 ApiInstallCommand::class,
             ]);
         }
