@@ -27,7 +27,7 @@ This project utilizes the following packages to enhance functionality and stream
 You can install these packages using Composer. Run the following command to install all dependencies:
 
 ```bash
-composer install
+composer require mk990/mkapi --dev
 ```
 
 ---
