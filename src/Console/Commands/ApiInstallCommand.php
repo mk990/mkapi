@@ -10,6 +10,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Illuminate\Support\Str;
 
 use function Laravel\Prompts\multiselect;
+use function PHPUnit\Framework\directoryExists;
 
 #[AsCommand(name: 'install:mkApi')]
 class ApiInstallCommand extends Command
@@ -156,6 +157,10 @@ class ApiInstallCommand extends Command
 
     protected function initializeMiddlewares()
     {
+        if (!is_dir(app_path('Http/Middleware'))) {
+            mkdir(app_path('Http/Middleware'), 0755, true);
+        }
+
         if (!file_exists($pulseMiddleware = $this->laravel->basePath('app/Http/Middleware/PulseJwtAuth.php'))) {
             $this->components->info('putted PulseJwtAuth file');
             File::put($pulseMiddleware, File::get(__DIR__ . '/stubs/pulse-middleware.stub'));
@@ -341,8 +346,6 @@ CONFIG;
             'php-open-source-saver/jwt-auth:^2.7',
         ]);
         $this->validationComposer('php-open-source-saver/jwt-auth:^2.7');
-
-        $this->call('jwt:secret');
     }
 
     protected function installBackup()
@@ -357,6 +360,7 @@ CONFIG;
     {
         $envExample = $this->laravel->basePath('.env.example');
         $env = $this->laravel->basePath('.env');
+        $jwt_secret = bin2hex(random_bytes(32));
         $dataEnv = [
             'L5_SWAGGER_CONST_HOST=${APP_URL}/api',
             'L5_SWAGGER_GENERATE_ALWAYS=true',
@@ -364,6 +368,7 @@ CONFIG;
             'JWT_TTL=10080',
             'TURNSTILE_SITE_KEY=0000000000000',
             'TURNSTILE_SECRET_KEY=0000000000000',
+            'JWT_SECRET=' . $jwt_secret,
         ];
         $content = file_exists($env) ? file_get_contents($env) : '';
         $newContent = [];
