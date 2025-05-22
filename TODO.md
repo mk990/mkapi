@@ -8,9 +8,18 @@
 - [x] JWTSUBJECT (for user model)
 - [x] JWT:SECRET
 - [x] installed persian package with {--iran}
-- [ ] get code base controller in config.php
-- [ ] add verta
-- [ ] add pulse
-- [ ] add envoy
-- [ ] exclude deleted_at
-- [ ] write route name with instant -
+- [x] add example for test
+- [x] add verta for --iran
+- [x] add config swagger to env.example
+- [x] add pulse
+- [x] Add cloudflare turnstile
+- [] exclude deleted_at
+- [] write route name with instant -
+- [] add envoy
+- [] add laravel socialite (login with google..)
+- [] add switch in model/controller for chose model/controller -c or -m
+- [] add docker in project
+- [] get code base controller in config.php
+- [] add -c to model command
+- [] fix --force
+- [] fix --code --force (check coment)

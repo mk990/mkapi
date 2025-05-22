@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExampleController;
 
 Route::group([
     'prefix' => 'auth'
@@ -18,3 +19,5 @@ Route::group([
     Route::get('forgotPassword/{token}', [AuthController::class, 'getForgotPassword'])->name('password.reset');
     Route::post('forgotPassword/{token}', [AuthController::class, 'setForgotPassword'])->name('change-password');
 });
+
+Route:get('test',[ExampleController::class,'test']);
