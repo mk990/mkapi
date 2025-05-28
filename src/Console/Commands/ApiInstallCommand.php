@@ -107,18 +107,30 @@ class ApiInstallCommand extends Command
                     'pulse',
                     'turnstile',
                     'backup',
-                    'iran'
+                    'iran',
+                    'telescope',
                 ],
                 required: true,
             );
 
             foreach ($choises as $choise) {
-                match ($choise) {
-                    'pulse'     => $this->installPulse(),
-                    'turnstile' => $this->installTurnstile(),
-                    'backup'    => $this->installBackup(),
-                    'iran'      => $this->installPersianPackages(),
-                };
+                switch ($choise) {
+                    case 'pulse':
+                        $this->installPulse();
+                        continue 2;
+                    case 'turnstile':
+                        $this->installTurnstile();
+                        continue 2;
+                    case 'backup':
+                        $this->installBackup();
+                        continue 2;
+                    case 'iran':
+                        $this->installPersianPackages();
+                        continue 2;
+                    case 'telescope':
+                        $this->installTelescope();
+                        continue 2;
+                }
 
                 if ($choise == 'backup') {
                     if (file_exists($apiRoutesPath = $this->laravel->basePath('config/backup.php')) &&
@@ -147,13 +159,15 @@ class ApiInstallCommand extends Command
         }
     }
 
-    protected function validationComposer($package, $dev = false)
+    protected function validationComposer($package, $dev = false, $optional = false)
     {
         // want check composer.json file if package exist return error
         if (file_exists($this->laravel->basePath('composer.json'))) {
             $composer = json_decode(file_get_contents($this->laravel->basePath('composer.json')), true);
-            if (isset($composer['require'][$package])) {
+
+            if (isset($composer['require'][$package]) || isset($composer['require-dev'][$package]) || $optional && isset($composer['require-optional'][$package])) {
                 $this->components->error($package . ' already installed');
+                return true;
             } else {
                 $this->requireComposerPackages($this->option('composer'), [
                     $package,
@@ -296,7 +310,7 @@ class ApiInstallCommand extends Command
 
     protected function installPulse()
     {
-        $this->validationComposer('laravel/pulse');
+        $this->validationComposer('laravel/pulse', optional: true);
 
         if (file_exists($this->laravel->basePath('config/pulse.php')) &&
         !$this->option('force')) {
@@ -310,7 +324,7 @@ class ApiInstallCommand extends Command
 
     protected function installTurnstile()
     {
-        $this->validationComposer('ryangjchandler/laravel-cloudflare-turnstile');
+        $this->validationComposer('ryangjchandler/laravel-cloudflare-turnstile', optional: true);
 
         $servicesFilePath = config_path('services.php');
 
@@ -341,17 +355,22 @@ CONFIG;
     {
         $this->validationComposer('darkaonline/l5-swagger');
 
-        $this->call('vendor:publish', ['--provider' =>  "L5Swagger\L5SwaggerServiceProvider"]);
+        if (file_exists($this->laravel->basePath('config/l5-swagger.php')) &&
+        !$this->option('force')) {
+            $this->components->error('swagger file already exists.');
+        } else {
+            $this->call('vendor:publish', ['--provider' => 'DarkaOnline\L5Swagger\L5SwaggerServiceProvider']);
+        }
     }
 
     protected function installLaraStan()
     {
-        $this->validationComposer('larastan/larastan:^3.0', true);
+        $this->validationComposer('larastan/larastan', true);
     }
 
     protected function installJWT()
     {
-        $this->validationComposer('php-open-source-saver/jwt-auth:^2.7');
+        $this->validationComposer('php-open-source-saver/jwt-auth');
     }
 
     protected function installBackup()
@@ -360,6 +379,44 @@ CONFIG;
             'ext-zip:*',
             'spatie/laravel-backup:^9.1',
         ]);
+    }
+
+    protected function installPersianPackages()
+    {
+        $this->requireComposerPackages($this->option('composer'), [
+            'sadegh19b/laravel-persian-validation',
+            'hekmatinasser/verta',
+        ]);
+    }
+
+    protected function installTelescope()
+    {
+        $this->validationComposer('laravel/telescope', true, true);
+
+        if (file_exists($telescopeProviderPath = $this->laravel->basePath('app/Providers/TelescopeServiceProvider.php')) &&
+        !$this->option('force')) {
+            $this->components->error('telescope provider file already exists.');
+        } else {
+            File::put($telescopeProviderPath, File::get(__DIR__ . '/stubs/telescope-provider.stub'));
+            $this->components->info('putted TelescopeServiceProvider file');
+            // add to service provder app
+            $appConfigPath = $this->laravel->bootstrapPath('providers.php');
+            $content = file_get_contents($appConfigPath);
+
+            if (!str_contains($content, 'TelescopeServiceProvider::class')) {
+                $this->components->info('Adding TelescopeServiceProvider to the application bootstrap file.');
+                $content = preg_replace(
+                    '/return \[/',
+                    "return [\n    App\Providers\TelescopeServiceProvider::class,",
+                    $content
+                );
+                file_put_contents($appConfigPath, $content);
+            } else {
+                $this->components->info('TelescopeServiceProvider is already registered.');
+            }
+
+            $this->call('vendor:publish', ['--tag' => 'telescope-migrations']);
+        }
     }
 
     protected function handleDotEnvFile()
@@ -393,13 +450,5 @@ CONFIG;
             file_put_contents($envExample, trim($content));
             $this->components->info('env file updated');
         }
-    }
-
-    protected function installPersianPackages()
-    {
-        $this->requireComposerPackages($this->option('composer'), [
-            'sadegh19b/laravel-persian-validation',
-            'hekmatinasser/verta',
-        ]);
     }
 }

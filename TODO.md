@@ -23,3 +23,4 @@
 - [] add -c to model command
 - [] fix --force
 - [] fix --code --force (check coment)
+- [ ] test
