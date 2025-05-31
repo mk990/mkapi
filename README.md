@@ -1,153 +1,165 @@
 # MkApi
 
-## API Development with Laravel MKAPI
+[![GitHub stars](https://img.shields.io/github/stars/mk990/MkApi?style=social)](https://github.com/mk990/MkApi)
 
-MkApi is a Laravel-based tool designed to streamline the creation of API-related files, including models, controllers, and Swagger documentation. This project simplifies API development by providing a set of commands to generate the necessary files with Swagger support.
-
-Here’s the updated **Packages Used** section with your provided packages. I've included descriptions and versions for clarity:
+[![GitHub license](https://img.shields.io/github/license/mk990/MkApi)](https://github.com/mk990/MkApi/blob/main/LICENSE)
 
 ---
 
-## Packages Used
+<img src="./logo.jpg" alt="MkApi Logo" width="400px" />
 
-This project utilizes the following packages to enhance functionality and streamline development:
+# 🚀 API Development with Laravel MkApi
 
-| Package Name                          | Description                                                                 | Version       |
-|---------------------------------------|-----------------------------------------------------------------------------|---------------|
-| `php-open-source-saver/jwt-auth`      | JWT (JSON Web Token) authentication for Laravel APIs.                       | ^2.7          |
-| `darkaonline/l5-swagger`              | Swagger API documentation generator for Laravel.                            | ^8.6          |
-| `laravel-persian-validation`          | Persian-specific validation rules for Laravel applications.                 | -             |
-| `larastan/larastan`                   | Static analysis tool for Laravel applications to detect issues in code.     | ^3.0          |
-| `spatie/laravel-backup`               | Backup tool for Laravel applications, including databases and files.        | ^9.1          |
+**MkApi** is a Laravel-based CLI tool that simplifies API development by generating essential files like models, controllers, and Swagger documentation — all with a single command. It’s designed to help you build faster, cleaner, and more documented APIs. 🧰✨
 
 ---
 
-### How to Install Packages
+## 📦 Packages Used
 
-You can install these packages using Composer. Run the following command to install all dependencies:
+This project utilizes the following packages to boost development and maintain high standards:
+
+| 📦 Package Name              | 📝 Description                                                                           | 🔢 Version |
+| ---------------------------- | ---------------------------------------------------------------------------------------- | ---------- |
+| `l5-swagger`                 | Swagger API documentation generator for Laravel.                                         | ^8.6       |
+| `jwt-auth`                   | JSON Web Token (JWT) authentication for secure APIs.                                     | ^2.7       |
+| `larastan`                   | Static analysis tool to catch bugs early using PHPStan for Laravel.                      | ^3.0       |
+| `laravel-backup`             | Seamless backup of databases and files in Laravel apps.                                  | ^9.1       |
+| `laravel-pulse`              | Real-time performance insights for Laravel applications.                                 | ^1.4       |
+| `laravel-telescope`          | Debugging assistant for Laravel. Monitors requests, logs, queries, mail, jobs, and more. | ^5.8       |
+| `laravel-persian-validation` | Persian-specific validation rules for form requests.                                     | ^2.0       |
+| `verta`                      | Date handling between Solar and Gregorian calendars.                                     | ^8.5       |
+| `turnstile`                  | Easy integration with Cloudflare Turnstile for bot protection.                           | ^2.0       |
+
+---
+
+## ⚙️ Installation
+
+### 📥 Install MkApi Tool
 
 ```bash
 composer require mk990/mkapi --dev
-```
-
----
-
-## Installation
-
-### Install the MkApi Tool
-
-Run the following command to install the MkApi tool:
-
-```bash
 php artisan install:mkapi
 ```
 
+🔧 The following packages are installed by default:
+
+- `l5-swagger`
+- `jwt-auth`
+- `larastan`
+
 ---
 
-## Key Commands
+### 🎛️ Install Optional Packages
 
-### Generate Base Controller with Swagger Support
-
-To create a base controller with Swagger support, use the following command:
+Use the interactive install command to choose additional tools:
 
 ```bash
-php artisan mkapi:baseControllerSWG
+php artisan install:mkapi --package
+```
+
+📌 Available packages:
+
+- `laravel-backup`
+- `laravel-pulse`
+- `laravel-telescope`
+- `laravel-persian-validation`
+- `verta`
+- `turnstile`
+
+---
+
+## 🛠️ Usage
+
+MkApi provides easy-to-use artisan commands to generate models and controllers with Swagger support.
+
+### 🧱 Generate a Model
+
+```bash
+php artisan mkapi:Model YOUR_MODEL_NAME
+```
+
+✅ Examples:
+
+```bash
+php artisan mkapi:Model product
+php artisan mkapi:Model all
 ```
 
 ---
 
-### Generate Model with Swagger Support
-
-To generate a model with Swagger support, use the command below. Replace `YOUR_MODEL_NAME` with the desired model name.
+### 🎮 Generate a Controller
 
 ```bash
-php artisan mkapi:ModelSWG --name=YOUR_MODEL_NAME
+php artisan mkapi:Controller YOUR_CONTROLLER_NAME
+```
+
+✅ Examples:
+
+```bash
+php artisan mkapi:Controller product
+php artisan mkapi:Controller all
 ```
 
 ---
 
-### Generate Controller with Swagger Support
+## 🧩 Command Options
 
-To create a controller with Swagger support, use the following command. Replace `YOUR_CONTROLLER_NAME` with the desired controller name.
-
-```bash
-php artisan mkapi:ControllerSWG --name=YOUR_CONTROLLER_NAME
-```
-
----
-
-## Command Options
-
-### `--force`
-
-Overwrite existing files using this option:
+### 🔁 `--force`: Overwrite Existing Files
 
 ```bash
-php artisan mkapi:ModelSWG --name=YOUR_MODEL_NAME --force
+php artisan mkapi:Model product --force
 ```
+
+This will replace any existing `ProductModel.php` file.
 
 ---
 
-### `--backup`
-
-Add backup packages to the project:
+### 🧾 `--code`: Add Swagger Documentation & Controller Logic
 
 ```bash
-php artisan install:mkapi --backup
+php artisan mkapi:Controller product --code
 ```
 
----
+🧠 Example generated method in `ProductController.php`:
 
-### `--iran`
+```php
+public function store(Request $request): JsonResponse
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+    ]);
 
-Add Persian-specific packages (e.g., `laravel-persian-validation`) to the project:
-
-```bash
-php artisan install:mkapi --iran
+    try {
+        return $this->success(Product::create($validated));
+    } catch (Exception $e) {
+        Log::error($e->getMessage());
+        return $this->error('create error');
+    }
+}
 ```
 
----
-
-### `--code`
-
-Add Swagger documentation and code to controllers:
-
-```bash
-php artisan mkapi:ControllerSWG --name=YOUR_CONTROLLER_NAME --code
-```
+➡️ Explore more generated methods in the [TestController](https://github.com/Emadshirzad/mkapi/blob/master/src/TestController.php) file.
 
 ---
 
-## Project Setup
+## 🤝 Contributing
 
-1. Ensure Laravel is installed on your system.
-2. Install the MkApi tool using the following command:
+We love contributions! If you have ideas or improvements, feel free to:
 
-   ```bash
-   php artisan install:mkapi
-   ```
-
-3. Generate models and controllers for your project using the relevant commands:
-
-   ```bash
-   php artisan mkapi:ModelSWG --name=ProductModel
-   php artisan mkapi:ControllerSWG --name=ProductController
-   ```
+- 📌 [Create an Issue](https://github.com/mk990/MkApi/issues)
+- 🚀 [Submit a Pull Request](https://github.com/mk990/MkApi/pulls)
 
 ---
 
-## Contributing
+## 📝 License
 
-We welcome contributions! If you have suggestions or improvements, feel free to:
-
-- Create an [Issue](https://github.com/mk990/MkApi/issues).
-- Submit a [Pull Request](https://github.com/mk990/MkApi/pulls).
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
-## Contributors
+## 👥 Contributors
 
-- [mk990](https://github.com/mk990)
-- [Emad Shirzad](https://github.com/Emadshirzad)
+- 👨‍💻 [mk990](https://github.com/mk990)
+- 👨‍💻 [Emad Shirzad](https://github.com/Emadshirzad)
 
 ---
