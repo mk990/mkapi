@@ -138,7 +138,7 @@ public function store(Request $request): JsonResponse
 }
 ```
 
-➡️ Explore more generated methods in the [TestController](https://github.com/Emadshirzad/mkapi/blob/master/src/TestController.php) file.
+➡️ Explore more generated methods in the [TestController](https://github.com/mk990/mkapi/blob/master/src/TestController.php) file.
 
 ---
 
