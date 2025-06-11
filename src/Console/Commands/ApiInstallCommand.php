@@ -150,6 +150,9 @@ class ApiInstallCommand extends Command
                 }
 
                 if ($choise == 'iran') {
+                    if (!is_dir(app_path('Models/Traits'))) {
+                        mkdir(app_path('Models/Traits'), 0755, true);
+                    }
                     if (!file_exists($vertaTrait = $this->laravel->basePath('app/Models/Traits/VertaTrait.php'))) {
                         $this->components->info('putted VertaTrait file');
                         File::put($vertaTrait, File::get(__DIR__ . '/stubs/verta-trait.stub'));

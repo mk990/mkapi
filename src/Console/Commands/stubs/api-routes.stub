@@ -20,4 +20,4 @@ Route::group([
     Route::post('forgotPassword/{token}', [AuthController::class, 'setForgotPassword'])->name('change-password');
 });
 
-Route:get('test',[ExampleController::class,'test']);
+Route::get('test',[ExampleController::class,'test']);
