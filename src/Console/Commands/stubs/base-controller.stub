@@ -46,9 +46,9 @@ abstract class Controller
      *     ),
      * )
      */
-    public function success(mixed \$data = [], int \$status = 200): JsonResponse
+    public function success(mixed $data = [], int $status = 200): JsonResponse
     {
-        return response()->json(\$data, \$status);
+        return response()->json($data, $status);
     }
 
     /**
@@ -73,10 +73,10 @@ abstract class Controller
      *     ),
      * )
      */
-    public function error(string \$message = '', array \$errors = [], int \$status = 400): JsonResponse
+    public function error(string $message = '', array $errors = [], int $status = 400): JsonResponse
     {
-        \$data = ['message' => \$message, 'errors' => \$errors ?: []];
-        return response()->json(\$data, \$status);
+        $data = ['message' => $message, 'errors' => $errors ?: []];
+        return response()->json($data, $status);
     }
 
     /**
@@ -153,3 +153,4 @@ abstract class Controller
     private function schema()
     {
     }
+}
